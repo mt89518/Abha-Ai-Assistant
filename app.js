@@ -2,6 +2,8 @@ import 'dotenv/config';
 import readline from 'node:readline/promises';
 import Groq from 'groq-sdk';
 import { tavily } from '@tavily/core';
+import OpenAI from "openai";
+const client = new OpenAI();
 
 
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
@@ -40,7 +42,7 @@ async function main() {
 
         while (true) {
             const completions = await groq.chat.completions.create({
-                model: 'llama-3.1-8b-instant',
+                model: 'gpt-5',
                 temperature: 0,
                 messages: messages,
                 tools: [
