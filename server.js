@@ -144,11 +144,41 @@ app.post('/api/chat', async (req, res) => {
         console.log('Final response:', finalResponse);
         res.json({ response: finalResponse });
 
-    } catch (error) {
+        } catch (error) {
         console.error('Chat API error:', error);
+        console.error('Error stack:', error.stack);
+        
+        // Handle model decommissioning
+        if (error.message && error.message.includes('decommissioned')) {
+            return res.status(400).json({ 
+                error: 'AI model temporarily unavailable',
+                details: 'The AI model is currently being updated. Please try again in a few minutes.',
+                type: 'model_unavailable'
+            });
+        }
+        
+        // Handle rate limiting specifically
+        if (error.message && error.message.includes('429')) {
+            return res.status(429).json({ 
+                error: 'Rate limit exceeded. Please wait a moment and try again.',
+                details: 'The AI service is currently busy. Please try again in a few seconds.',
+                retryAfter: 3
+            });
+        }
+        
+        // Handle other API errors
+        if (error.message && error.message.includes('API')) {
+            return res.status(503).json({ 
+                error: 'AI service temporarily unavailable',
+                details: 'Please try again in a moment.',
+                type: 'service_unavailable'
+            });
+        }
+        
         res.status(500).json({ 
             error: 'An error occurred while processing your request',
-            details: error.message 
+            details: error.message,
+            type: error.constructor.name
         });
     }
 });

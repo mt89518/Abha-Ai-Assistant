@@ -3,6 +3,7 @@ import readline from 'node:readline/promises';
 import Groq from 'groq-sdk';
 import { tavily } from '@tavily/core';
 
+
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 

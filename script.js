@@ -107,6 +107,7 @@ class ChatApp {
         this.autoResize();
         this.setLoading(true, 'AI is thinking...');
         
+        let response;
         try {
             // Create AbortController for this request
             this.abortController = new AbortController();
@@ -131,7 +132,7 @@ class ChatApp {
             }, 3000);
             
             // Send message to backend with abort signal
-            const response = await fetch('/api/chat', {
+            response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,7 +160,17 @@ class ChatApp {
                 return;
             }
             console.error('Error:', error);
-            this.addMessage('Sorry, I encountered an error while processing your request. Please try again.', 'bot', true);
+            
+            // Handle specific error types
+            if (response && response.status === 400) {
+                this.addMessage('The AI model is currently being updated. Please try again in a few minutes.', 'bot', true);
+            } else if (response && response.status === 429) {
+                this.addMessage('The AI service is currently busy due to high demand. Please wait a moment and try again.', 'bot', true);
+            } else if (response && response.status === 503) {
+                this.addMessage('The AI service is temporarily unavailable. Please try again in a few minutes.', 'bot', true);
+            } else {
+                this.addMessage('Sorry, I encountered an error while processing your request. Please try again.', 'bot', true);
+            }
         } finally {
             this.abortController = null;
             this.setLoading(false);
