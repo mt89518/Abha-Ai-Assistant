@@ -1,0 +1,8 @@
+{
+  "name": "netlify-functions",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tavily/core": "^0.5.12",
+    "groq-sdk": "^0.32.0"
+  }
+}
